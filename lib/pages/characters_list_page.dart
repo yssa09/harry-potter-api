@@ -9,6 +9,10 @@ import '../cubits/character_state.dart';
 class CharactersListPage extends StatefulWidget {
   const CharactersListPage({Key? key}) : super(key: key);
 
+  static Page page() {
+    return MaterialPage<void>(child: CharactersListPage());
+  }
+
   @override
   State<StatefulWidget> createState() {
     return CharactersListPageState();
@@ -16,7 +20,6 @@ class CharactersListPage extends StatefulWidget {
 }
 
 class CharactersListPageState extends State<CharactersListPage> {
-  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -27,7 +30,6 @@ class CharactersListPageState extends State<CharactersListPage> {
 
   @override
   Widget build(BuildContext context) {
-    Key? key;
     return Scaffold(
       appBar: AppBar(title: const Text('Harry Potter Characters')),
       body: BlocBuilder<CharacterCubit, CharacterState>(
@@ -43,20 +45,15 @@ class CharactersListPageState extends State<CharactersListPage> {
                   title: Text(char.name),
                   subtitle: Text(char.house),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CharacterDetailsPage(
-                          key,
-                          character: char,
-                        ),
-                      ),
-                    );
+                    context.read<CharacterCubit>().fetchDetails(char);
                   },
                 );
               }),
               itemCount: 20,
             );
+          } else if (state is CharacterDetailsState) {
+            var char = state.character;
+            return CharacterDetailsPage(character: char);
           }
           return Text(state.toString());
         },
@@ -64,3 +61,24 @@ class CharactersListPageState extends State<CharactersListPage> {
     );
   }
 }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(title: const Text('Harry Potter Characters')),
+  //     body: ListView.builder(
+  //       itemBuilder: ((context, index) {
+  //         return ListTile();
+  //         // CharacterModel char = characters[index];
+  //         // return ListTile(
+  //         //   title: Text(char.name),
+  //         //   subtitle: Text(char.house),
+  //         //   onTap: () {
+  //         //     context.read<CharacterCubit>().fetchDetails(char);
+  //         //   },
+  //         // );
+  //       }),
+  //       itemCount: 20,
+  //     ),
+  //   );
+  // }

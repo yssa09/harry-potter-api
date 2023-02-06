@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+// import 'package:equatable/equatable.dart';
 import 'package:http/http.dart' as http;
 
 class CharactersRepository {
@@ -14,7 +15,7 @@ class CharactersRepository {
           name: e['name'],
           house: e['house'] == '' ? 'Not yet sorted' : e['house'],
           image: e['image'],
-          ancestry: e['ancestry'],
+          ancestry: e['ancestry'] == '' ? 'Unknown' : e['ancestry'],
           patronus: e['patronus'] == '' ? 'None' : e['patronus'],
           actor: e['actor'],
         );
@@ -42,4 +43,7 @@ class CharacterModel {
   late String ancestry;
   late String patronus;
   late String actor;
+
+  // @override
+  // List<Object?> get props => [name, house, image, ancestry, patronus, actor];
 }
