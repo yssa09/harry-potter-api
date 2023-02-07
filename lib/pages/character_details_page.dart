@@ -22,47 +22,57 @@ class CharacterDetailsPage extends StatelessWidget {
     return BlocBuilder<CharacterCubit, CharacterState>(
         builder: (context, state) {
       return Scaffold(
+        appBar: AppBar(
+          title: Align(
+            alignment: Alignment.centerRight,
+            child: Text(character.name),
+          ),
+        ),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.arrow_back),
           onPressed: () => context.read<CharacterCubit>().fetchCharacter(),
         ),
-        body: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                margin: const EdgeInsets.all(20),
-                width: 300,
-                height: 450,
-                child: Image.network(
-                  character.image,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: Text(
-                  'House: ${character.house}\nAncestry: ${character.ancestry}\nPatronus: ${character.patronus}\nPortrayed by: ${character.actor}',
-                  style: const TextStyle(letterSpacing: .5, height: 2),
-                ),
-              ),
-            ],
-          ),
-        ),
+        body: SafeArea(child: listWidget(character)),
       );
     });
   }
+}
+
+Widget listWidget(CharacterModel character) {
+  return Center(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.all(20),
+          width: 300,
+          height: 450,
+          child: Image.network(
+            character.image,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 40),
+          child: Text(
+            'House: ${character.house}\nAncestry: ${character.ancestry}\nPatronus: ${character.patronus}\nPortrayed by: ${character.actor}',
+            style: const TextStyle(letterSpacing: .5, height: 2),
+          ),
+        ),
+      ],
+    ),
+  );
 }

@@ -1,29 +1,19 @@
 import 'dart:convert';
-
-// import 'package:equatable/equatable.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' show get;
 
 class CharactersRepository {
   Future<List<CharacterModel>> getCharacters() async {
-    const url = 'https://hp-api.onrender.com/api/characters';
-    final Uri uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body) as List;
-      var list = body.map((e) {
-        return CharacterModel(
-          name: e['name'],
-          house: e['house'] == '' ? 'Not yet sorted' : e['house'],
-          image: e['image'],
-          ancestry: e['ancestry'] == '' ? 'Unknown' : e['ancestry'],
-          patronus: e['patronus'] == '' ? 'None' : e['patronus'],
-          actor: e['actor'],
-        );
-      }).toList();
-      return list;
-    } else {
-      throw "Something went wrong ${response.statusCode}";
+    List<CharacterModel> characterInfoList = [];
+    Uri uri = Uri.parse('https://hp-api.onrender.com/api/characters');
+    var response = await get(uri);
+    List list = json.decode(response.body) as List;
+    for (var entry in list) {
+      CharacterModel characterModel = CharacterModel.fromJson(entry);
+      if (characterInfoList.length < 20) {
+        characterInfoList.add(characterModel);
+      }
     }
+    return characterInfoList;
   }
 }
 
@@ -37,6 +27,7 @@ class CharacterModel {
     required this.actor,
   });
 
+  // late int id;
   late String name;
   late String house;
   late String image;
@@ -44,6 +35,13 @@ class CharacterModel {
   late String patronus;
   late String actor;
 
-  // @override
-  // List<Object?> get props => [name, house, image, ancestry, patronus, actor];
+  CharacterModel.fromJson(Map<String, dynamic> parsedJson) {
+    name = parsedJson['name'];
+    house = parsedJson['house'] == '' ? 'Not yet sorted' : parsedJson['house'];
+    image = parsedJson['image'];
+    ancestry =
+        parsedJson['ancestry'] == '' ? 'Unknown' : parsedJson['ancestry'];
+    patronus = parsedJson['patronus'] == '' ? 'None' : parsedJson['patronus'];
+    actor = parsedJson['actor'];
+  }
 }

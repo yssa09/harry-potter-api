@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../cubits/character_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoadingPage extends StatelessWidget {
   const LoadingPage({Key? key}) : super(key: key);
@@ -9,8 +11,9 @@ class LoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(),
+    context.read<CharacterCubit>().fetchCharacter();
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

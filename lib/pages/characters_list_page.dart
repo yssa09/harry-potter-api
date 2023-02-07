@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hp_characters/pages/character_details_page.dart';
+import 'package:http/http.dart' show get;
+import 'dart:convert';
 
 import '../models/character_model.dart';
 import '../cubits/character_cubit.dart';
-import '../cubits/character_state.dart';
 
 class CharactersListPage extends StatefulWidget {
   const CharactersListPage({Key? key}) : super(key: key);
 
   static Page page() {
-    return MaterialPage<void>(child: CharactersListPage());
+    return const MaterialPage<void>(child: CharactersListPage());
   }
 
   @override
@@ -20,65 +20,59 @@ class CharactersListPage extends StatefulWidget {
 }
 
 class CharactersListPageState extends State<CharactersListPage> {
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final cubit = context.read<CharacterCubit>();
-      cubit.fetchCharacter();
+  CharactersListPageState();
+
+  @override
+  initState() {
+    Future.delayed(const Duration(seconds: 0), () async {
+      Uri uri = Uri.parse('https://hp-api.onrender.com/api/characters');
+      var response = await get(uri);
+      List list = json.decode(response.body) as List;
+      setState(() {
+        for (var entry in list) {
+          CharacterModel characterModel = CharacterModel.fromJson(entry);
+          if (characterInfoList.length < 20) {
+            characterInfoList.add(characterModel);
+          }
+        }
+      });
     });
   }
 
+  List<CharacterModel> characterInfoList = [];
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Harry Potter Characters')),
-      body: BlocBuilder<CharacterCubit, CharacterState>(
-        builder: (context, state) {
-          if (state is InitCharacterState || state is LoadingCharacterState) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is ResponseCharacterState) {
-            var characters = state.characters;
-            return ListView.builder(
-              itemBuilder: ((context, index) {
-                CharacterModel char = characters[index];
-                return ListTile(
-                  title: Text(char.name),
-                  subtitle: Text(char.house),
-                  onTap: () {
-                    context.read<CharacterCubit>().fetchDetails(char);
-                  },
-                );
-              }),
-              itemCount: 20,
-            );
-          } else if (state is CharacterDetailsState) {
-            var char = state.character;
-            return CharacterDetailsPage(character: char);
-          }
-          return Text(state.toString());
-        },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Harry Potter API',
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: charactersListWidget(),
+        ),
+      ),
+    );
+  }
+
+  Widget charactersListWidget() {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * .89,
+      child: ListView.builder(
+        itemCount: characterInfoList.length,
+        itemBuilder: ((context, index) {
+          var character = characterInfoList[index];
+          return (ListTile(
+            title: Text(character.name),
+            subtitle: Text(character.house),
+            onTap: () {
+              context.read<CharacterCubit>().fetchDetails(character);
+            },
+          ));
+        }),
       ),
     );
   }
 }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(title: const Text('Harry Potter Characters')),
-  //     body: ListView.builder(
-  //       itemBuilder: ((context, index) {
-  //         return ListTile();
-  //         // CharacterModel char = characters[index];
-  //         // return ListTile(
-  //         //   title: Text(char.name),
-  //         //   subtitle: Text(char.house),
-  //         //   onTap: () {
-  //         //     context.read<CharacterCubit>().fetchDetails(char);
-  //         //   },
-  //         // );
-  //       }),
-  //       itemCount: 20,
-  //     ),
-  //   );
-  // }

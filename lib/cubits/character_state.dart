@@ -1,5 +1,3 @@
-// import 'package:equatable/equatable.dart';
-
 import '../models/character_model.dart';
 
 abstract class CharacterState {}
@@ -16,7 +14,4 @@ class ResponseCharacterState extends CharacterState {
 class CharacterDetailsState extends CharacterState {
   CharacterModel character;
   CharacterDetailsState(this.character);
-
-  // @override
-  // List<Object?> get props => [character];
 }
